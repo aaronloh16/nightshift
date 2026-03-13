@@ -1,4 +1,4 @@
-"""CLI entry point: python -m nightshift [run|collect|draft]"""
+"""CLI entry point: python -m nightshift [run|collect|brief]"""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ def main() -> None:
     )
     parser.add_argument(
         "command",
-        choices=["run", "collect", "draft"],
+        choices=["run", "collect", "brief"],
         nargs="?",
         default="run",
         help="Pipeline command (default: run)",
@@ -34,10 +34,10 @@ def main() -> None:
                 print(f"[{item.source}] {item.title} ({item.score})")
                 print(f"  {item.url}\n")
 
-        case "draft":
+        case "brief":
             items = asyncio.run(pipeline.collect(settings))
-            digest = asyncio.run(pipeline.draft(settings, style, items))
-            print(digest.summary)
+            brief = asyncio.run(pipeline.build_brief(settings, style, items))
+            print(brief.summary)
 
         case "run":
             asyncio.run(pipeline.run(settings, style))
