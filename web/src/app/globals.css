@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-deep: #08080d;
+  --bg-surface: #0f0f17;
+  --bg-elevated: #161621;
+  --bg-card: #1a1a28;
+  --amber: #e8a849;
+  --amber-dim: #c4882e;
+  --amber-glow: rgba(232, 168, 73, 0.15);
+  --amber-glow-strong: rgba(232, 168, 73, 0.3);
+  --indigo: #818cf8;
+  --green: #6ee7b7;
+  --red: #fb7185;
+  --cyan: #67e8f9;
+  --text-primary: #e8e6e3;
+  --text-secondary: #9b9bab;
+  --text-muted: #5b5b6b;
+  --border: #1f1f2e;
+  --border-active: #2a2a3e;
+}
+
+@theme inline {
+  --color-background: var(--bg-deep);
+  --color-foreground: var(--text-primary);
+  --font-sans: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-serif: 'Instrument Serif', serif;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-active) transparent;
+}
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  overflow: hidden;
+}
+
+/* Noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Ambient glow */
+.ambient-glow {
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--amber-glow) 0%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+  transition: opacity 0.8s ease;
+}
+
+.ambient-glow.active {
+  opacity: 0.8;
+}
+
+/* Custom scrollbar for webkit */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 2px; }
+
+/* Tool pulse animation */
+@keyframes toolPulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--amber-glow); }
+  50% { box-shadow: 0 0 20px 4px var(--amber-glow-strong); }
+}
+
+.tool-active {
+  animation: toolPulse 1.5s ease-in-out infinite;
+}
+
+/* Typing cursor */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.cursor-blink::after {
+  content: '▌';
+  animation: blink 1s step-end infinite;
+  color: var(--amber);
+  margin-left: 2px;
+}
+
+/* Scan line effect on tool feed */
+@keyframes scanLine {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--amber-glow-strong), transparent);
+  animation: scanLine 4s linear infinite;
+  pointer-events: none;
+  opacity: 0.3;
+}
