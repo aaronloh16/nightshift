@@ -24,6 +24,8 @@ class HackerNewsConfig(BaseModel):
     enabled: bool = True
     top_n: int = 10
     min_score: int = 50
+    search_keywords: list[str] = Field(default_factory=list)
+    show_hn: bool = True
 
 
 class GitHubConfig(BaseModel):
@@ -43,16 +45,60 @@ class RedditConfig(BaseModel):
     time_filter: str = "day"
 
 
+class XProfileConfig(BaseModel):
+    enabled: bool = False
+    lookback_count: int = 50
+
+
+class XSearchQueryConfig(BaseModel):
+    name: str
+    prompt: str
+
+
+class XSearchConfig(BaseModel):
+    enabled: bool = False
+    model: str = "grok-4-1-fast-non-reasoning"
+    lookback_hours: int = 12
+    queries: list[XSearchQueryConfig] = Field(default_factory=list)
+
+
+class RSSConfig(BaseModel):
+    enabled: bool = False
+    feeds: list[str] = Field(default_factory=list)
+    top_n: int = 15
+    max_per_feed: int = 5
+
+
+class GmailConfig(BaseModel):
+    enabled: bool = False
+    search_terms: list[str] = Field(default_factory=list)
+    lookback_hours: int = 14
+    max_results: int = 10
+
+
+class SmartCollectorConfig(BaseModel):
+    enabled: bool = False
+    model: str = "grok-4-1-fast-non-reasoning"
+    lookback_hours: int = 12
+    max_tool_calls: int = 10
+    newsletter_search_terms: list[str] = Field(default_factory=list)
+    extra_queries: list[XSearchQueryConfig] = Field(default_factory=list)
+
+
 class CollectorsConfig(BaseModel):
     hackernews: HackerNewsConfig = Field(default_factory=HackerNewsConfig)
     github: GitHubConfig = Field(default_factory=GitHubConfig)
     reddit: RedditConfig = Field(default_factory=RedditConfig)
+    x_profile: XProfileConfig = Field(default_factory=XProfileConfig)
+    xsearch: XSearchConfig = Field(default_factory=XSearchConfig)
+    rss: RSSConfig = Field(default_factory=RSSConfig)
+    gmail: GmailConfig = Field(default_factory=GmailConfig)
+    smart: SmartCollectorConfig = Field(default_factory=SmartCollectorConfig)
 
 
-class DrafterConfig(BaseModel):
+class BriefBuilderConfig(BaseModel):
     model: str = "claude-sonnet-4-6"
-    max_tweets: int = 8
-    max_tweet_length: int = 280
+    max_sections: int = 8
 
 
 class DeliveryConfig(BaseModel):
@@ -62,14 +108,14 @@ class DeliveryConfig(BaseModel):
 
 class Settings(BaseModel):
     collectors: CollectorsConfig = Field(default_factory=CollectorsConfig)
-    drafter: DrafterConfig = Field(default_factory=DrafterConfig)
+    brief_builder: BriefBuilderConfig = Field(default_factory=BriefBuilderConfig)
     delivery: DeliveryConfig = Field(default_factory=DeliveryConfig)
 
 
 class StyleConfig(BaseModel):
-    persona: str = ""
-    guidelines: list[str] = Field(default_factory=list)
-    examples: list[str] = Field(default_factory=list)
+    interests: list[str] = Field(default_factory=list)
+    angle_types: list[str] = Field(default_factory=list)
+    voice_notes: str = ""
 
 
 # --- Loaders ---

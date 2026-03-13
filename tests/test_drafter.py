@@ -1,55 +1,87 @@
-"""Tests for the tweet drafter."""
+"""Tests for the brief builder."""
 
-from nightshift.drafter import Drafter
-from nightshift.config import DrafterConfig, StyleConfig
-from nightshift.models import TrendingItem
+import json
+
+from nightshift.brief_builder import BriefBuilder
+from nightshift.config import BriefBuilderConfig, StyleConfig
+from nightshift.models import TrendingItem, XSearchResult
 
 
-def test_parse_drafts():
-    config = DrafterConfig()
+def test_parse_brief_valid_json():
+    config = BriefBuilderConfig()
     style = StyleConfig(
-        persona="Test persona",
-        guidelines=["Keep it short"],
-        examples=["Example tweet"],
+        voice_notes="Test voice",
+        interests=["AI"],
+        angle_types=["hot take"],
     )
-    drafter = Drafter(config, style)
+    builder = BriefBuilder(config, style)
 
-    items = [
-        TrendingItem(title="Item 1", url="https://example.com/1", source="hn"),
-        TrendingItem(title="Item 2", url="https://example.com/2", source="hn"),
-    ]
+    response = json.dumps([
+        {
+            "category": "Big Releases",
+            "headline": "Test release",
+            "context": "Some context here.",
+            "sources": ["https://example.com"],
+            "tweet_ideas": ["react to this"],
+        }
+    ])
+    brief = builder._parse_brief(response)
 
-    response = "First tweet about item 1\n---\nSecond tweet about item 2"
-    drafts = drafter._parse_drafts(response, items)
-
-    assert len(drafts) == 2
-    assert "First tweet" in drafts[0].text
-    assert "Second tweet" in drafts[1].text
-    assert drafts[0].source_item.title == "Item 1"
+    assert len(brief.sections) == 1
+    assert brief.sections[0].category == "Big Releases"
+    assert brief.sections[0].headline == "Test release"
 
 
-def test_parse_drafts_extra_blocks_ignored():
-    config = DrafterConfig()
-    style = StyleConfig(persona="", guidelines=[], examples=[])
-    drafter = Drafter(config, style)
+def test_parse_brief_with_code_fences():
+    config = BriefBuilderConfig()
+    style = StyleConfig(voice_notes="", interests=[], angle_types=[])
+    builder = BriefBuilder(config, style)
 
-    items = [TrendingItem(title="Only one", url="https://example.com", source="hn")]
-    response = "Tweet one\n---\nExtra tweet\n---\nAnother extra"
-    drafts = drafter._parse_drafts(response, items)
+    response = '```json\n[{"category": "Cool Projects", "headline": "Test", "context": "ctx", "sources": [], "tweet_ideas": []}]\n```'
+    brief = builder._parse_brief(response)
 
-    assert len(drafts) == 1
+    assert len(brief.sections) == 1
+    assert brief.sections[0].category == "Cool Projects"
+
+
+def test_parse_brief_invalid_json():
+    config = BriefBuilderConfig()
+    style = StyleConfig(voice_notes="", interests=[], angle_types=[])
+    builder = BriefBuilder(config, style)
+
+    brief = builder._parse_brief("not valid json at all")
+    assert len(brief.sections) == 0
 
 
 def test_build_system_prompt_includes_style():
-    config = DrafterConfig()
+    config = BriefBuilderConfig()
     style = StyleConfig(
-        persona="You are witty",
-        guidelines=["Be concise", "No hashtags"],
-        examples=["Example tweet here"],
+        voice_notes="lowercase energy",
+        interests=["vibecoding", "dev tools"],
+        angle_types=["hot take", "signal boost"],
     )
-    drafter = Drafter(config, style)
-    prompt = drafter._build_system_prompt()
+    builder = BriefBuilder(config, style)
+    prompt = builder._build_system_prompt()
 
-    assert "You are witty" in prompt
-    assert "Be concise" in prompt
-    assert "Example tweet here" in prompt
+    assert "lowercase energy" in prompt
+    assert "vibecoding" in prompt
+    assert "hot take" in prompt
+
+
+def test_build_user_prompt_includes_sources():
+    config = BriefBuilderConfig()
+    style = StyleConfig(voice_notes="", interests=[], angle_types=[])
+    builder = BriefBuilder(config, style)
+
+    items = [
+        TrendingItem(title="Test Item", url="https://example.com", source="hackernews", score=100),
+    ]
+    x_results = [
+        XSearchResult(category="AI", query_name="test query", summary="Some summary"),
+    ]
+
+    prompt = builder._build_user_prompt(items, x_results)
+
+    assert "Test Item" in prompt
+    assert "https://example.com" in prompt
+    assert "Some summary" in prompt

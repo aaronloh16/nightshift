@@ -1,11 +1,11 @@
-"""Composio client singleton for GitHub, Reddit, and Telegram integrations."""
+"""Composio client singleton for GitHub, Reddit, Gmail, and Telegram integrations."""
 
 from __future__ import annotations
 
 from functools import lru_cache
 from typing import Any
 
-from composio import Composio
+from composio import Action, Composio
 
 
 @lru_cache(maxsize=1)
@@ -17,9 +17,9 @@ def get_composio_client() -> Composio:
 def execute_action(action: str, arguments: dict[str, Any]) -> dict[str, Any]:
     """Execute a Composio action and return the result."""
     client = get_composio_client()
-    result = client.tools.execute(
-        action=action,
-        arguments=arguments,
-        entity_id="nightshift",
+    entity = client.get_entity("default")
+    result = entity._execute(
+        action=Action(action),
+        params=arguments,
     )
     return result
