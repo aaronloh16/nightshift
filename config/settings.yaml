@@ -3,11 +3,20 @@
 collectors:
   hackernews:
     enabled: true
-    top_n: 10  # number of top stories to fetch
+    top_n: 10
     min_score: 50
+    show_hn: true
+    search_keywords:
+      - "AI agent"
+      - "vibecoding"
+      - "cursor"
+      - "claude"
+      - "developer tools"
+      - "Claude Code"
+      - "copilot"
 
   github:
-    enabled: false  # enable after Composio GitHub is linked
+    enabled: true
     topics:
       - artificial-intelligence
       - llm
@@ -17,40 +26,88 @@ collectors:
     top_n: 10
 
   reddit:
-    enabled: false  # enable after Composio Reddit is linked
+    enabled: true
     subreddits:
       # Research & LLMs
       - LocalLLaMA
       - MachineLearning
-      - Artificial
-      - Singularity
-      # General AI
-      - ArtificialIntelligence
-      - GenerativeAI
-      - AI_Agents
-      # LLM-specific
-      - ClaudeAI
-      - Anthropic
-      - ChatGPT
-      - OpenAI
-      # Coding with AI
+      # AI coding tools
       - ClaudeCode
       - VibeCoding
-      - ChatGPTCoding
       - Cursor
-      # Image & Video
-      - StableDiffusion
-      - Midjourney
-      # Automation
-      - Automation
-      - n8n
+      # Agents & frameworks
+      - AI_Agents
+      - LangChain
+      - ollama
+      # LLM-specific
+      - ClaudeAI
+      - OpenAI
+      # General dev
+      - programming
     top_n: 5  # per subreddit
     time_filter: day
 
-drafter:
+  x_profile:
+    enabled: false  # enable after Composio X account is linked
+    lookback_count: 50
+
+  xsearch:
+    enabled: false  # superseded by smart collector
+    model: grok-4-1-fast-non-reasoning
+    lookback_hours: 12
+    queries:
+      - name: "releases"
+        prompt: "New AI models, tools, or major updates announced"
+      - name: "vibecoding"
+        prompt: "Vibecoding, AI coding assistants, Cursor, Claude Code, Copilot"
+      - name: "agents"
+        prompt: "AI agents, agent frameworks, tool use developments"
+      - name: "drama"
+        prompt: "Debates, beef, controversial takes in AI/tech"
+      - name: "devrel"
+        prompt: "Developer relations, developer advocates, community leaders"
+      - name: "projects"
+        prompt: "Interesting open source projects, demos, side projects in AI/dev tools"
+
+  gmail:
+    enabled: false  # superseded by smart collector
+    lookback_hours: 14
+    max_results: 10
+    search_terms:
+      - "the rundown ai"
+
+  smart:
+    enabled: true
+    model: grok-4-1-fast-non-reasoning
+    lookback_hours: 12
+    max_tool_calls: 10
+    newsletter_search_terms:
+      - "the rundown ai"
+    extra_queries:
+      - name: "releases"
+        prompt: "New AI models, tools, or major updates announced"
+      - name: "vibecoding"
+        prompt: "Vibecoding, AI coding assistants, Cursor, Claude Code, Copilot"
+      - name: "agents"
+        prompt: "AI agents, agent frameworks, tool use developments"
+      - name: "drama"
+        prompt: "Debates, beef, controversial takes in AI/tech"
+      - name: "projects"
+        prompt: "Interesting open source projects, demos, side projects in AI/dev tools"
+
+  rss:
+    enabled: true
+    top_n: 15
+    max_per_feed: 5
+    feeds:
+      - https://simonwillison.net/atom/everything/
+      - https://www.latent.space/feed
+      - https://changelog.com/feed
+      - https://hnrss.org/best
+
+brief_builder:
   model: claude-sonnet-4-6
-  max_tweets: 8
-  max_tweet_length: 280
+  max_sections: 8
 
 delivery:
   enabled: false  # enable after Composio Telegram is linked

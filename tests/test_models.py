@@ -1,6 +1,6 @@
 """Tests for domain models."""
 
-from nightshift.models import Digest, TrendingItem, TweetDraft
+from nightshift.models import BriefSection, MorningBrief, TrendingItem
 
 
 def test_trending_item_dedup_key():
@@ -8,18 +8,24 @@ def test_trending_item_dedup_key():
     assert item.dedup_key == "https://example.com"
 
 
-def test_digest_summary():
-    item = TrendingItem(title="Test", url="https://example.com", source="hackernews", score=100)
-    draft = TweetDraft(text="This is a tweet", source_item=item)
-    digest = Digest(drafts=[draft])
+def test_morning_brief_summary():
+    section = BriefSection(
+        category="Big Releases",
+        headline="Test headline",
+        context="Some context about the release.",
+        sources=["https://example.com"],
+        tweet_ideas=["react to this release"],
+    )
+    brief = MorningBrief(sections=[section])
 
-    summary = digest.summary
-    assert "Nightshift Digest" in summary
-    assert "This is a tweet" in summary
+    summary = brief.summary
+    assert "Morning Brief" in summary
+    assert "BIG RELEASES" in summary
+    assert "Test headline" in summary
     assert "https://example.com" in summary
-    assert "hackernews" in summary
+    assert "react to this release" in summary
 
 
-def test_digest_empty():
-    digest = Digest(drafts=[])
-    assert "Nightshift Digest" in digest.summary
+def test_morning_brief_empty():
+    brief = MorningBrief(sections=[])
+    assert "Morning Brief" in brief.summary
