@@ -1,0 +1,57 @@
+# Nightshift pipeline settings
+
+collectors:
+  hackernews:
+    enabled: true
+    top_n: 10  # number of top stories to fetch
+    min_score: 50
+
+  github:
+    enabled: false  # enable after Composio GitHub is linked
+    topics:
+      - artificial-intelligence
+      - llm
+      - machine-learning
+    created_within_days: 7
+    min_stars: 50
+    top_n: 10
+
+  reddit:
+    enabled: false  # enable after Composio Reddit is linked
+    subreddits:
+      # Research & LLMs
+      - LocalLLaMA
+      - MachineLearning
+      - Artificial
+      - Singularity
+      # General AI
+      - ArtificialIntelligence
+      - GenerativeAI
+      - AI_Agents
+      # LLM-specific
+      - ClaudeAI
+      - Anthropic
+      - ChatGPT
+      - OpenAI
+      # Coding with AI
+      - ClaudeCode
+      - VibeCoding
+      - ChatGPTCoding
+      - Cursor
+      # Image & Video
+      - StableDiffusion
+      - Midjourney
+      # Automation
+      - Automation
+      - n8n
+    top_n: 5  # per subreddit
+    time_filter: day
+
+drafter:
+  model: claude-sonnet-4-6
+  max_tweets: 8
+  max_tweet_length: 280
+
+delivery:
+  enabled: false  # enable after Composio Telegram is linked
+  telegram_chat_id: ${TELEGRAM_CHAT_ID}
