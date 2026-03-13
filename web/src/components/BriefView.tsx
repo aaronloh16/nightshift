@@ -7,65 +7,81 @@ interface BriefViewProps {
   brief: MorningBrief;
 }
 
-const CATEGORY_COLORS: Record<string, string> = {
-  "Big Releases": "var(--amber)",
-  "Drama & Hot Takes": "var(--red)",
-  "Cool Projects": "var(--cyan)",
-  "Industry Moves": "var(--indigo)",
-  Vibecoding: "var(--green)",
-  "Sleeper Hits": "var(--amber-dim)",
+const CATEGORY_STYLES: Record<string, { color: string; glow: string }> = {
+  "Big Releases": { color: "var(--amber)", glow: "var(--amber-glow)" },
+  "Drama & Hot Takes": { color: "var(--red)", glow: "var(--red-glow)" },
+  "Cool Projects": { color: "var(--cyan)", glow: "var(--cyan-glow)" },
+  "Industry Moves": { color: "var(--indigo)", glow: "var(--indigo-glow)" },
+  Vibecoding: { color: "var(--green)", glow: "var(--green-glow)" },
+  "Sleeper Hits": { color: "var(--amber-dim)", glow: "var(--amber-glow)" },
 };
 
-function getCategoryColor(category: string): string {
-  return CATEGORY_COLORS[category] || "var(--amber)";
+function getCategoryStyle(category: string) {
+  return (
+    CATEGORY_STYLES[category] || {
+      color: "var(--amber)",
+      glow: "var(--amber-glow)",
+    }
+  );
 }
 
 export function BriefView({ brief }: BriefViewProps) {
+  const dateStr = new Date(brief.created_at).toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+
   return (
-    <div className="px-8 py-6">
+    <div className="px-8 py-8">
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-8"
+        transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+        className="mb-10"
       >
+        <p
+          className="mb-1 text-[10px] font-semibold uppercase"
+          style={{
+            fontFamily: "var(--font-mono)",
+            color: "var(--amber-dim)",
+            letterSpacing: "0.15em",
+          }}
+        >
+          {dateStr}
+        </p>
         <h2
-          className="text-3xl font-light tracking-tight"
+          className="text-4xl font-medium tracking-tight"
           style={{
             fontFamily: "var(--font-serif)",
             color: "var(--text-primary)",
+            lineHeight: 1.15,
           }}
         >
           Morning Brief
         </h2>
-        <p
-          className="mt-1 text-sm"
+        <div
+          className="mt-4 h-px w-16"
           style={{
-            fontFamily: "var(--font-mono)",
-            color: "var(--text-muted)",
+            background:
+              "linear-gradient(90deg, var(--amber-dim), transparent)",
           }}
-        >
-          {new Date(brief.created_at).toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-          })}
-        </p>
+        />
       </motion.div>
 
-      <div className="space-y-6">
+      <div className="space-y-5">
         {brief.sections.map((section, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
               duration: 0.5,
-              delay: 0.1 + i * 0.08,
+              delay: 0.15 + i * 0.1,
               ease: [0.23, 1, 0.32, 1],
             }}
           >
-            <SectionCard section={section} />
+            <SectionCard section={section} index={i} />
           </motion.div>
         ))}
       </div>
@@ -73,37 +89,57 @@ export function BriefView({ brief }: BriefViewProps) {
   );
 }
 
-function SectionCard({ section }: { section: BriefSection }) {
-  const accentColor = getCategoryColor(section.category);
+function SectionCard({
+  section,
+  index,
+}: {
+  section: BriefSection;
+  index: number;
+}) {
+  const style = getCategoryStyle(section.category);
 
   return (
     <div
-      className="rounded-xl p-5 transition-colors"
+      className="card-glow rounded-2xl p-6 transition-colors duration-300 hover:brightness-[1.02]"
       style={{
         background: "var(--bg-card)",
         border: "1px solid var(--border)",
       }}
     >
       {/* Category tag */}
-      <div className="mb-3 flex items-center gap-2">
+      <div className="mb-3 flex items-center gap-2.5">
         <span
           className="inline-block h-1.5 w-1.5 rounded-full"
-          style={{ background: accentColor }}
+          style={{
+            background: style.color,
+            boxShadow: `0 0 6px ${style.glow}`,
+          }}
         />
         <span
-          className="text-xs font-semibold uppercase tracking-wider"
+          className="text-[10px] font-semibold uppercase"
           style={{
             fontFamily: "var(--font-mono)",
-            color: accentColor,
+            color: style.color,
+            letterSpacing: "0.1em",
           }}
         >
           {section.category}
+        </span>
+        <div className="flex-1" />
+        <span
+          className="text-[9px]"
+          style={{
+            fontFamily: "var(--font-mono)",
+            color: "var(--text-muted)",
+          }}
+        >
+          #{index + 1}
         </span>
       </div>
 
       {/* Headline */}
       <h3
-        className="mb-2 text-lg font-medium leading-snug"
+        className="mb-3 text-[17px] font-semibold leading-snug"
         style={{
           color: "var(--text-primary)",
           fontFamily: "var(--font-sans)",
@@ -114,7 +150,7 @@ function SectionCard({ section }: { section: BriefSection }) {
 
       {/* Context */}
       <p
-        className="mb-4 text-sm leading-relaxed"
+        className="mb-5 text-[13px] leading-[1.7]"
         style={{
           color: "var(--text-secondary)",
           fontFamily: "var(--font-sans)",
@@ -125,31 +161,54 @@ function SectionCard({ section }: { section: BriefSection }) {
 
       {/* Tweet Ideas */}
       {section.tweet_ideas.length > 0 && (
-        <div className="mb-3">
-          <span
-            className="mb-2 block text-xs font-medium uppercase tracking-wider"
-            style={{
-              fontFamily: "var(--font-mono)",
-              color: "var(--text-muted)",
-            }}
-          >
-            Tweet angles
-          </span>
-          <div className="space-y-2">
+        <div className="mb-4">
+          <div className="mb-2.5 flex items-center gap-2">
+            <div
+              className="h-px flex-1"
+              style={{ background: "var(--border)" }}
+            />
+            <span
+              className="text-[9px] font-medium uppercase"
+              style={{
+                fontFamily: "var(--font-mono)",
+                color: "var(--text-muted)",
+                letterSpacing: "0.12em",
+              }}
+            >
+              tweet angles
+            </span>
+            <div
+              className="h-px flex-1"
+              style={{ background: "var(--border)" }}
+            />
+          </div>
+          <div className="space-y-1.5">
             {section.tweet_ideas.map((idea, j) => (
               <div
                 key={j}
-                className="flex items-start gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:brightness-110 cursor-pointer"
+                className="group/idea flex items-start gap-2.5 rounded-xl px-3.5 py-2.5 text-[13px] transition-all duration-200 cursor-pointer"
                 style={{
                   background: "var(--bg-elevated)",
                   color: "var(--text-secondary)",
                   fontFamily: "var(--font-sans)",
+                  border: "1px solid transparent",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "var(--border-active)";
+                  e.currentTarget.style.background = "var(--bg-card-hover)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "transparent";
+                  e.currentTarget.style.background = "var(--bg-elevated)";
                 }}
               >
-                <span style={{ color: "var(--text-muted)" }} className="mt-0.5 select-none">
+                <span
+                  className="mt-px select-none text-[11px] transition-colors"
+                  style={{ color: "var(--text-muted)" }}
+                >
                   &rsaquo;
                 </span>
-                <span>{idea}</span>
+                <span className="leading-relaxed">{idea}</span>
               </div>
             ))}
           </div>
@@ -158,7 +217,7 @@ function SectionCard({ section }: { section: BriefSection }) {
 
       {/* Sources */}
       {section.sources.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {section.sources.map((src, k) => {
             let label = "link";
             try {
@@ -173,7 +232,7 @@ function SectionCard({ section }: { section: BriefSection }) {
                 href={src}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-md px-2 py-1 text-xs transition-colors hover:brightness-125"
+                className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[10px] transition-all duration-200 hover:brightness-150"
                 style={{
                   background: "var(--bg-surface)",
                   color: "var(--text-muted)",
@@ -181,6 +240,20 @@ function SectionCard({ section }: { section: BriefSection }) {
                   border: "1px solid var(--border)",
                 }}
               >
+                <svg
+                  width="8"
+                  height="8"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                  <polyline points="15 3 21 3 21 9" />
+                  <line x1="10" y1="14" x2="21" y2="3" />
+                </svg>
                 {label}
               </a>
             );
