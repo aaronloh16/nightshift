@@ -187,7 +187,7 @@ const MOCK_BRIEF = {
   created_at: new Date().toISOString(),
 };
 
-export async function POST(req: NextRequest) {
+export async function POST(_req: NextRequest) {
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({

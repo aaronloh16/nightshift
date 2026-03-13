@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ToolEvent, MorningBrief, PipelinePhase } from "@/types";
 import { ToolFeed } from "@/components/ToolFeed";
